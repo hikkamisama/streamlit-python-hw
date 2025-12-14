@@ -122,7 +122,7 @@ if uploaded_file:
         mean_seasons = df_city.groupby("season")["mean_temp_season"].min()
         std_seasons = df_city.groupby("season")["std_temp_season"].min()
         season_info = pd.concat([order_seasons, mean_seasons, std_seasons], axis=1).sort_values(by='order').round(2)
-        st.dataframe(season_info['mean_temp_season', 'std_temp_season'])
+        st.dataframe(season_info[['mean_temp_season', 'std_temp_season']])
 
         st.caption("Сезонные профили для города")
 
