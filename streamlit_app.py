@@ -8,7 +8,7 @@ def load_data():
     # load dataframes with data
     pass
 
-data_seasons, data_all = load_data()
+# data_seasons, data_all = load_data()
 
 st.title("Информация о текущей температуре в городе")
 
