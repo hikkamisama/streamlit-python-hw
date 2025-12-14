@@ -1,5 +1,6 @@
 import requests
 import json
+import datetime
 
 import streamlit as st
 import numpy as np
@@ -13,7 +14,7 @@ _lock = RLock()
 
 @st.cache_data
 def load_data(uploaded_file):
-    # если использовать пандас, получается в 4 раза медленнее (при наборе данных в 56к)
+    # если использовать пандас, получается в 4 раза медленнее (при наборе данных в 54к)
     # поэтому используем polars
     df_polars = pl.scan_csv(uploaded_file, try_parse_dates=True)
     result = (
@@ -92,8 +93,7 @@ if uploaded_file:
             anomalies['temperature'],
             color='indigo',
             s=30,
-            label='Аномальные дни',
-            zorder=3
+            label='Аномальные дни'
         )
 
         df_city['season_year'] = df_city['season'] + ' ' + df_city['timestamp'].dt.year.astype(str)
@@ -116,11 +116,19 @@ if uploaded_file:
 
         st.pyplot(fig)
 
+        st.caption("График температуры для города")
+
+        order_seasons = pd.Series(data=[0, 1, 2, 3], index=['winter', 'spring', 'summer', 'autumn'], name='order')
+        mean_seasons = df_city.groupby("season")["mean_temp_season"].min()
+        std_seasons = df_city.groupby("season")["std_temp_season"].min()
+        season_info = pd.concat([order_seasons, mean_seasons, std_seasons], axis=1).sort_values(by='order').round(2)
+        st.dataframe(season_info['mean_temp_season', 'std_temp_season'])
+
+        st.caption("Сезонные профили для города")
+
 if st.button("Узнать текущую температуру"):
     if not st.session_state.key_valid:
         st.error("Введите корректный API ключ")
-    elif not city:
-        st.error("Выберите город")
     else:
         # использование aiohttp ускоряет суммарное время запросов, если нужно сделать много запросов подряд
         # далее у нас синхронная часть, поэтому используем requests
@@ -129,3 +137,24 @@ if st.button("Узнать текущую температуру"):
             )
         temp = json.loads(r.text)['main']['temp'] - 273.15
         st.metric(label="Текущая температура:", value=f"{temp:.2f} °C")
+        if uploaded_file:
+            months = {
+                1: "winter",
+                2: "winter",
+                3: "spring",
+                4: "spring",
+                5: "spring",
+                6: "summer",
+                7: "summer",
+                8: "summer",
+                9: "autumn",
+                10: "autumn",
+                11: "autumn",
+                12: "winter"
+            }
+            month = datetime.datetime.today().month
+            season = months[month]
+            if abs(temp - season_info.loc[season, 'mean_temp_season']) > 2 * season_info.loc[season, 'std_temp_season']:
+                st.badge("Аномальная температура")
+        else:
+            st.error("Чтобы узнать аномальность температуры, загрузите исторические данные")
