@@ -41,7 +41,9 @@ def load_data(uploaded_file):
 st.title("Информация о текущей температуре в городе")
 
 uploaded_file = st.file_uploader("Загрузите CSV c историческими данными", type=["csv"])
-df = load_data(uploaded_file)
+
+if uploaded_file:
+    df = load_data(uploaded_file)
 
 if "key_valid" not in st.session_state:
     st.session_state.key_valid = False
