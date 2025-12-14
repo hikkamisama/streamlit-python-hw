@@ -135,8 +135,7 @@ if st.button("Узнать текущую температуру"):
         r = requests.get(
                 f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={api_key}"
             )
-        # temp = json.loads(r.text)['main']['temp'] - 273.15
-        temp = 300
+        temp = json.loads(r.text)['main']['temp'] - 273.15
         st.metric(label="Текущая температура:", value=f"{temp:.2f} °C")
         if uploaded_file:
             months = {
