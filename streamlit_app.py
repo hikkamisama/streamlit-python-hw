@@ -46,5 +46,5 @@ if st.button("Узнать температуру"):
         r = requests.get(
                 f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={api_key}"
             )
-        temp = json.loads(x.text)['main']['temp'] - 273.15
+        temp = json.loads(r.text)['main']['temp'] - 273.15
         st.metric(f"Текущая погода: {temp}°C",)
