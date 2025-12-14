@@ -42,9 +42,6 @@ st.title("Информация о текущей температуре в го�
 
 uploaded_file = st.file_uploader("Загрузите CSV c историческими данными", type=["csv"])
 
-if uploaded_file:
-    df = load_data(uploaded_file)
-
 if "key_valid" not in st.session_state:
     st.session_state.key_valid = False
 
@@ -68,54 +65,56 @@ if st.session_state.key_valid:
 
 city = st.selectbox("Выберите город", ["Beijing", "Berlin", "Cairo", "Dubai", "London", "Los Angeles", "Mexico City", "Moscow", "Mumbai", "New York", "Paris", "Rio de Janeiro", "Singapore", "Sydney", "Tokyo"])
 
-df_city = df[df['city'] == city]
+if uploaded_file:
+    df = load_data(uploaded_file)
+    df_city = df[df['city'] == city]
 
-with _lock:
-    fig, ax = plt.subplots(figsize=(14, 6))
+    with _lock:
+        fig, ax = plt.subplots(figsize=(14, 6))
 
-    ax.scatter(
-        df_city['timestamp'],
-        df_city['temperature'],
-        color='orchid',
-        s=15,
-        label='Средняя температура за день'
-    )
-    ax.plot(
-        df_city['timestamp'],
-        df_city['moving_avg_30d'],
-        color='darkviolet',
-        linewidth=2,
-        label='Скользящее среднее с окном в 30 дней'
-    )
-    anomalies = df_city[df_city['anomaly']]
-    ax.scatter(
-        anomalies['timestamp'],
-        anomalies['temperature'],
-        color='indigo',
-        s=30,
-        label='Аномальные дни',
-        zorder=3
-    )
+        ax.scatter(
+            df_city['timestamp'],
+            df_city['temperature'],
+            color='orchid',
+            s=15,
+            label='Средняя температура за день'
+        )
+        ax.plot(
+            df_city['timestamp'],
+            df_city['moving_avg_30d'],
+            color='darkviolet',
+            linewidth=2,
+            label='Скользящее среднее с окном в 30 дней'
+        )
+        anomalies = df_city[df_city['anomaly']]
+        ax.scatter(
+            anomalies['timestamp'],
+            anomalies['temperature'],
+            color='indigo',
+            s=30,
+            label='Аномальные дни',
+            zorder=3
+        )
 
-    df_city['season_year'] = df_city['season'] + ' ' + df_city['timestamp'].dt.year.astype(str)
+        df_city['season_year'] = df_city['season'] + ' ' + df_city['timestamp'].dt.year.astype(str)
 
-    season_ticks = (
-        df_city.groupby('season_year')['timestamp']
-        .min()
-        .reset_index()
-    )
+        season_ticks = (
+            df_city.groupby('season_year')['timestamp']
+            .min()
+            .reset_index()
+        )
 
-    ax.set_xticks(season_ticks['timestamp'])
-    ax.set_xticklabels(season_ticks['season_year'], rotation=45, ha='right')
+        ax.set_xticks(season_ticks['timestamp'])
+        ax.set_xticklabels(season_ticks['season_year'], rotation=45, ha='right')
 
-    ax.set_title('Исторические данные по температуре')
-    ax.set_xlabel('Время года')
-    ax.set_ylabel('Температура')
+        ax.set_title('Исторические данные по температуре')
+        ax.set_xlabel('Время года')
+        ax.set_ylabel('Температура')
 
-    ax.legend()
-    ax.grid(alpha=0.3)
+        ax.legend()
+        ax.grid(alpha=0.3)
 
-    st.pyplot(fig)
+        st.pyplot(fig)
 
 if st.button("Узнать текущую температуру"):
     if not st.session_state.key_valid:
