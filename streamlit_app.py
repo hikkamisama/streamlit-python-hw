@@ -40,10 +40,11 @@ if st.session_state.key_valid:
 if st.button("Узнать температуру"):
     if not st.session_state.key_valid:
         st.error("Введите корректный API ключ")
-    if not city:
+    elif not city:
         st.error("Выберите город")
-    r = requests.get(
-            f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={api_key}"
-        )
-    temp = json.loads(x.text)['main']['temp'] - 273.15
-    st.metric(f"Текущая погода: {temp}°C",)
+    else:
+        r = requests.get(
+                f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={api_key}"
+            )
+        temp = json.loads(x.text)['main']['temp'] - 273.15
+        st.metric(f"Текущая погода: {temp}°C",)
