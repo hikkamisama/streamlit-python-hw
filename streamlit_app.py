@@ -118,13 +118,13 @@ if uploaded_file:
 
         st.caption("График температуры для города")
 
-        order_seasons = pd.Series(data=[0, 1, 2, 3], index=['winter', 'spring', 'summer', 'autumn'], name='order')
-        mean_seasons = df_city.groupby("season")["mean_temp_season"].min()
-        std_seasons = df_city.groupby("season")["std_temp_season"].min()
-        season_info = pd.concat([order_seasons, mean_seasons, std_seasons], axis=1).sort_values(by='order').round(2)
-        st.dataframe(season_info[['mean_temp_season', 'std_temp_season']])
+    order_seasons = pd.Series(data=[0, 1, 2, 3], index=['winter', 'spring', 'summer', 'autumn'], name='order')
+    mean_seasons = df_city.groupby("season")["mean_temp_season"].min()
+    std_seasons = df_city.groupby("season")["std_temp_season"].min()
+    season_info = pd.concat([order_seasons, mean_seasons, std_seasons], axis=1).sort_values(by='order').round(2)
+    st.dataframe(season_info[['mean_temp_season', 'std_temp_season']])
 
-        st.caption("Сезонные профили для города")
+    st.caption("Сезонные профили для города")
 
 if st.button("Узнать текущую температуру"):
     if not st.session_state.key_valid:
@@ -135,7 +135,8 @@ if st.button("Узнать текущую температуру"):
         r = requests.get(
                 f"https://api.openweathermap.org/data/2.5/weather?q={city}&APPID={api_key}"
             )
-        temp = json.loads(r.text)['main']['temp'] - 273.15
+        # temp = json.loads(r.text)['main']['temp'] - 273.15
+        temp = 300
         st.metric(label="Текущая температура:", value=f"{temp:.2f} °C")
         if uploaded_file:
             months = {
