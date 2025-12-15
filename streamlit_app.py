@@ -56,6 +56,7 @@ if st.button("Проверить API ключ"):
         r = requests.get(
             f"https://api.openweathermap.org/data/2.5/weather?q=Moscow&APPID={api_key}"
         )
+        r.raise_for_status()
         st.session_state.key_valid = r.ok
     except Exception as e:
         st.session_state.key_valid = False
